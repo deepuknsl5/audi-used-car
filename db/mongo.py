@@ -1,15 +1,16 @@
-from pymongo import MongoClient
-from dotenv import load_dotenv
+# db/mongo.py
 import os
+from pymongo import MongoClient
 
-load_dotenv()
+MONGO_URI = os.getenv("MONGO_URI")
+if not MONGO_URI:
+    raise RuntimeError("MONGO_URI not set")
 
-client = MongoClient(os.getenv("MONGO_URI"))
-db = client[os.getenv("DB_NAME")]
+client = MongoClient(MONGO_URI)
 
-vehicles_col = db.vehicles
-sync_logs_col = db.sync_logs
-ml_metrics_col = db.ml_metrics
+# ✅ Use database from URI (no DB_NAME needed)
+db = client.get_default_database()
 
-vehicles_col.create_index("vin", unique=True)
-vehicles_col.create_index("status")
+vehicles_col = db["vehicles"]
+sync_logs_col = db["sync_logs"]
+ml_metrics_col = db["ml_metrics"]
