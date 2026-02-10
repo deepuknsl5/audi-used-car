@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+playwright
+pymongo
+python-dotenv
+pandas
+scikit-learn
+numpy
+streamlit
+joblib
