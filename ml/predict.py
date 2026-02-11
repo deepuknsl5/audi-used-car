@@ -1,11 +1,27 @@
+# ml/predict.py
+import os
+import numpy as np
 from joblib import load
-import pandas as pd
 
-model = load("ml/model.joblib")
+MODEL_PATH = "ml/model.joblib"
+_model = None
 
-def predict_price(vehicle):
-    df = pd.DataFrame([{
-        "year": vehicle.get("year", 0),
-        "mileage_km": vehicle.get("mileage_km", 0)
-    }])
-    return int(model.predict(df)[0])
+
+def get_model():
+    global _model
+    if _model is None:
+        if not os.path.exists(MODEL_PATH):
+            raise RuntimeError("ML model not trained yet")
+        _model = load(MODEL_PATH)
+    return _model
+
+
+def predict_price(vehicle: dict) -> float:
+    model = get_model()
+
+    X = np.array([[
+        vehicle["year"],
+        vehicle["mileage_km"]
+    ]])
+
+    return float(model.predict(X)[0])
