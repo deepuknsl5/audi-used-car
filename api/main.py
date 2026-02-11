@@ -28,7 +28,25 @@ def get_prediction(vin: str):
 
 @app.get("/sync-status")
 def sync_status():
-    return sync_logs_col.find_one(sort=[("sync_time", -1)], projection={"_id": 0})
+    log = sync_logs_col.find_one(sort=[("sync_time", -1)])
+
+    if not log:
+        return {
+            "message": "No sync has been completed yet",
+            "last_sync": None,
+            "added": 0,
+            "updated": 0,
+            "removed": 0,
+            "total_active": 0
+        }
+
+    return {
+        "last_sync": log.get("sync_time"),
+        "added": log.get("added", 0),
+        "updated": log.get("updated", 0),
+        "removed": log.get("removed", 0),
+        "total_active": log.get("total_active", 0)
+    }
 
 @app.post("/trigger-sync")
 def trigger_sync(background_tasks: BackgroundTasks):
