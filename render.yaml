@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: audi-used-car
+    runtime: python
+    buildCommand: |
+      pip install -r requirements.txt
+      playwright install chromium
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port 10000
