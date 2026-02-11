@@ -17,7 +17,7 @@ async def scrape_inventory():
     vehicles = []
 
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=False)  # keep False for debugging
+        browser = await p.chromium.launch(headless=True)  # keep False for debugging
         page = await browser.new_page()
 
         print("🔄 Loading inventory page...")
