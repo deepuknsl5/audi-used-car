@@ -1,7 +1,8 @@
+ 
 services:
   - type: web
     name: audi-used-car
-    runtime: python
+    env: python
     buildCommand: |
       pip install -r requirements.txt
       playwright install chromium
