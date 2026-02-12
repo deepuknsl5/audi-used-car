@@ -25,11 +25,14 @@ async def run_sync():
             if vehicle["price"] > 1_000_000:
                 vehicle["price"] = int(vehicle["price"] / 100)
 
-        vehicle_update = vehicle.copy()
+        # vehicle_update = vehicle.copy()
 
         # Always update last_seen
-        vehicle_update["last_seen"] = now
-        vehicle_update["status"] = "active"
+        # vehicle_update["last_seen"] = now
+        # vehicle_update["status"] = "active"
+
+        vehicle_update = vehicle.copy()
+        vehicle_update.pop("date_scraped", None)
 
         result = vehicles_col.update_one(
             {"vin": vin},
@@ -45,7 +48,6 @@ async def run_sync():
             },
             upsert=True
         )
-
         if result.upserted_id:
             added += 1
         elif result.modified_count:
