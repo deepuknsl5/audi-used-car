@@ -25,13 +25,23 @@ async def run_sync():
             if vehicle["price"] > 1_000_000:
                 vehicle["price"] = int(vehicle["price"] / 100)
 
-        vehicle["last_seen"] = now
+        vehicle_update = vehicle.copy()
+
+        # Always update last_seen
+        vehicle_update["last_seen"] = now
+        vehicle_update["status"] = "active"
 
         result = vehicles_col.update_one(
             {"vin": vin},
             {
-                "$set": vehicle,
-                "$setOnInsert": {"created_at": now}
+                "$set": {
+                    **vehicle_update,
+                    "last_seen": now,
+                    "status": "active"
+                },
+                "$setOnInsert": {
+                    "date_scraped": now
+                }
             },
             upsert=True
         )
@@ -48,8 +58,8 @@ async def run_sync():
             {"vin": {"$in": list(removed_vins)}},
             {
                 "$set": {
-                    "status": "inactive",
-                    "last_seen": now
+                    "status": "inactive"
+                  
                 }
             }
         )
@@ -57,12 +67,12 @@ async def run_sync():
 
     # 🧾 LOG SYNC
     sync_logs_col.insert_one({
-        "sync_time": now,
-        "added": added,
-        "updated": updated,
-        "removed": removed,
-        "total_active": vehicles_col.count_documents({"status": "active"})
-    })
+    "timestamp": now,
+    "new_count": added,
+    "updated_count": updated,
+    "removed_count": removed,
+    "total_active": vehicles_col.count_documents({"status": "active"})
+})
 
     print(
         f"✅ Sync complete | Added: {added}, Updated: {updated}, Removed: {removed}"
