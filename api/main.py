@@ -237,14 +237,30 @@ def get_report():
     # 3️⃣ Latest ML Metrics
     latest_ml = ml_metrics_col.find_one(sort=[("timestamp", -1)])
 
-    ml_section = {
-        "Model Used": latest_ml.get("model_name") if latest_ml else None,
-        "Features": latest_ml.get("features") if latest_ml else [],
-        "MAE": latest_ml.get("mae") if latest_ml else None,
-        "RMSE": latest_ml.get("rmse") if latest_ml else None,
-        "R2 Score": latest_ml.get("r2_score") if latest_ml else None,
-        "Last Trained": latest_ml.get("timestamp").isoformat() if latest_ml else None
-    }
+    if latest_ml:
+        last_trained = (
+            latest_ml.get("timestamp").isoformat()
+            if latest_ml.get("timestamp")
+            else None
+        )
+
+        ml_section = {
+            "Model Used": latest_ml.get("model_name"),
+            "Features": latest_ml.get("features", []),
+            "MAE": latest_ml.get("mae"),
+            "RMSE": latest_ml.get("rmse"),
+            "R2 Score": latest_ml.get("r2_score"),
+            "Last Trained": last_trained
+        }
+    else:
+        ml_section = {
+            "Model Used": None,
+            "Features": [],
+            "MAE": None,
+            "RMSE": None,
+            "R2 Score": None,
+            "Last Trained": None
+        }
 
     automation_section = {
         "Trigger": "Every 24 Hours",

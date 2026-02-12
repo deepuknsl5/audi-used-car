@@ -15,7 +15,7 @@ def train_model():
 
     model = RandomForestRegressor(n_estimators=200, random_state=42)
     model.fit(X, y)
-
+    
     preds = model.predict(X)
 
     mae = mean_absolute_error(y, preds)
