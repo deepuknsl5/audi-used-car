@@ -19,12 +19,31 @@ async def scrape_inventory():
     async with async_playwright() as p:
         browser = await p.chromium.launch(
             headless=True,
-            args=["--no-sandbox", "--disable-dev-shm-usage"]
+             args=[
+        "--no-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+        "--disable-software-rasterizer",
+        "--disable-extensions",
+        "--disable-background-networking",
+        "--disable-sync",
+        "--disable-translate",
+        "--disable-background-timer-throttling",
+        "--disable-renderer-backgrounding",
+        "--disable-device-discovery-notifications",
+        "--single-process"
+    ]
         )
 
         page = await browser.new_page()
 
         print("🔄 Loading inventory page...")
+        
+        await page.route("**/*", lambda route: (
+        route.abort()
+        if route.request.resource_type in ["image", "stylesheet", "font", "media"]
+        else route.continue_()
+    ))
         await page.goto(URL, timeout=60000)
 
         await page.wait_for_selector(
@@ -60,7 +79,7 @@ async def scrape_inventory():
 
             print("🔘 Clicking Load More...")
             await load_more_btn.first.click()
-            await page.wait_for_timeout(2500)
+            await page.wait_for_timeout(1200)
 
         print(f"🔍 Final vehicle count detected: {previous_count}")
 
